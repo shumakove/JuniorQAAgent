@@ -1,5 +1,5 @@
 from agent.agent import build_agent_context
-from agent.llm import OpenAILLM
+from agent.llm import OllamaLLM
 from agent.state import AgentState
 
 
@@ -26,7 +26,7 @@ state.actions_taken.append("get_ci_logs")
 
 context = build_agent_context(state)
 
-llm = OpenAILLM()
+llm = OllamaLLM()
 
 action = llm.decide(context)
 

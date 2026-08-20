@@ -1,57 +1,7 @@
 from agent.agent import run_agent
 from agent.action import AgentAction
 from agent.state import AgentState
-
-class ApplicationBugFakeLLM:
-
-    def decide(self, context, state):
-
-        if not state.ci_logs:
-            return AgentAction(
-                tool="get_ci_logs",
-                arguments={},
-                reasoning="I need CI evidence first.",
-            )
-
-        if len(state.test_runs) < 2:
-            return AgentAction(
-                tool="run_test",
-                arguments={
-                    "test_name": state.test_name,
-                    "run_number": len(state.test_runs) + 1,
-                },
-                reasoning="The failure needs to be reproduced.",
-            )
-
-        if not state.git_diff:
-            return AgentAction(
-                tool="get_pr_diff",
-                arguments={},
-                reasoning="The failure reproduced, so I will inspect recent code changes.",
-            )
-
-        if not state.related_tests:
-            return AgentAction(
-                tool="run_related_tests",
-                arguments={
-                    "test_name": state.test_name,
-                },
-                reasoning="I will run related tests to determine whether the issue affects application behavior.",
-            )
-
-        return AgentAction(
-            tool="classify",
-            arguments={
-                "classification": "APPLICATION_BUG",
-                "confidence": 0.93,
-                "evidence": [
-                    "CI failure reproduced twice",
-                    "Recent PR changed payment timeout configuration",
-                    "Related payment tests also failed",
-                ],
-            },
-            reasoning="The failure is reproducible and correlated with a recent application change.",
-        )
+from agent.llm import ApplicationBugFakeLLM
 
 def test_agent_detects_application_bug():
 
