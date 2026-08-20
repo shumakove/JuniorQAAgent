@@ -9,7 +9,7 @@ from agent.tools import (
     run_test_sequence
 )
 
-MAX_ITERRATIONS = 5
+MAX_ITERRATIONS = 6
 
 def invistigate(state: AgentState) -> AgentState:
     while state.iteration < MAX_ITERRATIONS and not state.finished:
