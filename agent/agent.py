@@ -6,7 +6,9 @@ from agent.tools import (
     get_test_history,
     get_pr_diff,
     get_ci_logs,
-    run_test_sequence
+    run_test_sequence,
+    get_ci_logs_from_file,
+    get_runtime_ci_logs
 )
 
 MAX_ITERRATIONS = 6
@@ -114,7 +116,7 @@ def execute_action(state, action):
         return
 
     if action.tool == "get_ci_logs":
-        result = get_ci_logs()
+        result = get_runtime_ci_logs()
         state.ci_logs = result
 
     elif action.tool == "get_pr_diff":
@@ -164,6 +166,26 @@ def run_agent(state, llm):
 
         action = llm.decide(context, state)
         state.actions_taken.append(action.tool)
+        execute_action(state, action)
+
+        if state.human_escalation:
+            break
+
+    return state
+
+def run_agent_with_ci_log(state, llm, log_path="ci.log"):
+    state.ci_logs = get_ci_logs_from_file(log_path)
+    state.actions_taken.append("get_ci_logs")
+
+    while state.iteration < MAX_ITERRATIONS and not state.finished:
+        state.iteration += 1
+
+        context = build_agent_context(state)
+
+        action = llm.decide(context, state)
+
+        state.actions_taken.append(action.tool)
+
         execute_action(state, action)
 
         if state.human_escalation:

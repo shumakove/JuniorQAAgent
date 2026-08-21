@@ -1,3 +1,5 @@
+import subprocess
+
 def get_ci_logs() -> str:
     return """
 CI Job: checkout-tests
@@ -12,6 +14,7 @@ PaymentService: request started
 PaymentService: waiting for payment provider
 PaymentService: timeout after 30 seconds
 """
+
 
 def get_pr_diff() -> str:
     return """
@@ -39,6 +42,21 @@ def get_test_history(test_name: str) -> list[dict]:
         {"run": 5, "status": "PASSED"},
     ]
 
+def get_ci_logs_from_file(path: str = "ci.log") -> str:
+    log_content = None
+    try:
+        with open(path) as file_path:
+            log_content = file_path.read()
+    except FileNotFoundError:
+        return "File not found"
+    except IOError as e:
+        print(e)
+    if log_content is not None:
+        return log_content
+
+def get_runtime_ci_logs():
+    return get_ci_logs_from_file("ci.log")
+        
 def run_test(test_name: str, run_number: int) -> dict:
     if run_number == 1:
         return {
@@ -80,3 +98,12 @@ def run_test_sequence(test_name: str, run_number: int) -> dict:
         "status": "PASSED",
         "error": None,
     }
+
+def get_git_diff() -> str:
+    result = subprocess.run(
+        ["git", "diff", "HEAD"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return result.stdout
