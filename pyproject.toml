@@ -8,6 +8,7 @@ version = "0.1.0"
 requires-python = ">=3.14"
 dependencies = [
     "openai",
+    "ollama",
 ]
 
 [tool.pytest.ini_options]
